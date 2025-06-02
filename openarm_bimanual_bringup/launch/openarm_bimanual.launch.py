@@ -66,15 +66,9 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "robot_controller",
             default_value="joint_trajectory_controller",
-            choices=["forward_position_controller", "joint_trajectory_controller"],
+            choices=["forward_position_controller",
+                     "joint_trajectory_controller"],
             description="Robot controller type to start for both arms.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "use_sim_time",
-            default_value="false",
-            description="Use simulation time.",
         )
     )
 
@@ -85,7 +79,6 @@ def generate_launch_description():
     description_file = LaunchConfiguration("description_file")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
     robot_controller = LaunchConfiguration("robot_controller")
-    use_sim_time = LaunchConfiguration("use_sim_time")
 
     # Get URDF via xacro
     robot_description_content = Command(
@@ -93,7 +86,8 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare(description_package), "urdf", description_file]
+                [FindPackageShare(description_package),
+                 "urdf", description_file]
             ),
             " ",
             "use_mock_hardware:=",
@@ -108,7 +102,8 @@ def generate_launch_description():
         [FindPackageShare(runtime_config_package), "config", controllers_file]
     )
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "rviz", "robot_description.rviz"]
+        [FindPackageShare(description_package), "rviz",
+         "robot_description.rviz"]
     )
 
     control_node = Node(
@@ -134,7 +129,8 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+        arguments=["joint_state_broadcaster",
+                   "--controller-manager", "/controller_manager"],
     )
 
     # Spawn both arm controllers based on the controller type
@@ -142,12 +138,14 @@ def generate_launch_description():
         Node(
             package="controller_manager",
             executable="spawner",
-            arguments=[["left_", robot_controller], "-c", "/controller_manager"],
+            arguments=[["left_", robot_controller],
+                       "-c", "/controller_manager"],
         ),
         Node(
             package="controller_manager",
             executable="spawner",
-            arguments=[["right_", robot_controller], "-c", "/controller_manager"],
+            arguments=[["right_", robot_controller],
+                       "-c", "/controller_manager"],
         )
     ]
 
@@ -189,4 +187,4 @@ def generate_launch_description():
             delay_joint_state_broadcaster_spawner_after_ros2_control_node,
         ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
-    ) 
+    )
