@@ -149,6 +149,22 @@ def generate_launch_description():
         )
     ]
 
+    # Spawn gripper controllers
+    gripper_controller_spawners = [
+        Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=["left_gripper_controller",
+                       "-c", "/controller_manager"],
+        ),
+        Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=["right_gripper_controller",
+                       "-c", "/controller_manager"],
+        )
+    ]
+
     # Delay loading and activation of `joint_state_broadcaster` after start of ros2_control_node
     delay_joint_state_broadcaster_spawner_after_ros2_control_node = RegisterEventHandler(
         event_handler=OnProcessStart(
@@ -178,6 +194,22 @@ def generate_launch_description():
             )
         ]
 
+    # Delay loading and activation of gripper controllers after arm controllers
+    delay_gripper_controller_spawners_after_robot_controllers = []
+    for i, controller in enumerate(gripper_controller_spawners):
+        delay_gripper_controller_spawners_after_robot_controllers += [
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=(
+                        gripper_controller_spawners[i - 1]
+                        if i > 0
+                        else robot_controller_spawners[-1]  # Start after last arm controller
+                    ),
+                    on_exit=[controller],
+                )
+            )
+        ]
+
     return LaunchDescription(
         declared_arguments
         + [
@@ -187,4 +219,5 @@ def generate_launch_description():
             delay_joint_state_broadcaster_spawner_after_ros2_control_node,
         ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
+        + delay_gripper_controller_spawners_after_robot_controllers
     )

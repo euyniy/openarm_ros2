@@ -38,6 +38,12 @@ controller_manager:
     right_joint_trajectory_controller:              
       type: joint_trajectory_controller/JointTrajectoryController
 
+    left_gripper_controller:
+      type: position_controllers/GripperActionController
+
+    right_gripper_controller:
+      type: position_controllers/GripperActionController
+
 left_forward_position_controller:                  
   ros__parameters:
     joints:
@@ -48,7 +54,7 @@ left_forward_position_controller:
       - left_rev5
       - left_rev6
       - left_rev7
-    interface_name: position
+    interface_name: positiono
 
 left_forward_velocity_controller:                  
   ros__parameters:
@@ -133,3 +139,11 @@ right_joint_trajectory_controller:
     constraints:
       stopped_velocity_tolerance: 0.01 # Defaults to 0.01
       goal_time: 0.0 # Defaults to 0.0 (start immediately) 
+
+left_gripper_controller:
+  ros__parameters:
+    joint: left_left_pris1
+
+right_gripper_controller:
+  ros__parameters:
+    joint: right_left_pris1 
