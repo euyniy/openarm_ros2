@@ -16,6 +16,22 @@
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="openarm_bimanual">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="right_can_device" default="can0" />
+    <xacro:arg name="left_can_device" default="can1" />
+    <xacro:arg name="use_mock_hardware" default="true" />
+    <xacro:arg name="mock_sensor_commands" default="true" />
+    <xacro:arg name="right_initial_positions_file" default="$(find openarm_description)/config/initial_positions.yaml" />
+    <xacro:arg name="left_initial_positions_file" default="$(find openarm_description)/config/initial_positions.yaml" />
+
+    <!-- Set properties for the included xacro file -->
+    <xacro:property name="prefix" value="$(arg prefix)" />
+    <xacro:property name="right_can_device" value="$(arg right_can_device)" />
+    <xacro:property name="left_can_device" value="$(arg left_can_device)" />
+    <xacro:property name="use_mock_hardware" value="$(arg use_mock_hardware)" />
+    <xacro:property name="mock_sensor_commands" value="$(arg mock_sensor_commands)" />
+    <xacro:property name="right_initial_positions_file" value="$(arg right_initial_positions_file)" />
+    <xacro:property name="left_initial_positions_file" value="$(arg left_initial_positions_file)" />
 
     <!-- Import openarm_bimanual urdf file -->
     <xacro:include filename="$(find openarm_bimanual_description)/urdf/openarm_bimanual.urdf.xacro" />
@@ -26,10 +42,5 @@
         <child link="base_link"/>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </joint>
-    <!-- Import control_xacro -->
-    <!-- <xacro:include filename="openarm_bimanual.ros2_control.xacro" />
-
-
-    <xacro:openarm_bimanual_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/> -->
 
 </robot>
