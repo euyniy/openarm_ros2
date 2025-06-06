@@ -16,7 +16,7 @@
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:include filename="$(find cameraMount_description)/urdf/camAssembly_4H.urdf.xacro"/>
+    <xacro:include filename="$(find camAssembly_4H_description)/urdf/cameraMount.urdf.xacro"/>
     <xacro:cam_mount parent="pedestal_link"/>
 
 </robot>
