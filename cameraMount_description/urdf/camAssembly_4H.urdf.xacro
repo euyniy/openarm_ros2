@@ -1,0 +1,67 @@
+<?xml version="1.0" ?>
+<robot name="camAssembly_4H" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="cam_mount" params="parent">
+
+    <xacro:include filename="$(find camAssembly_4H_description)/urdf/materials.xacro" />
+    <xacro:include filename="$(find camAssembly_4H_description)/urdf/camAssembly_4H.trans" />
+    <xacro:include filename="$(find camAssembly_4H_description)/urdf/camAssembly_4H.gazebo" />
+    <link name="cam_4h_base_link">
+      <inertial>
+        <origin xyz="-0.03651611001557706 -6.529178378444911e-06 0.015438502223371047" rpy="0 0 0"/>
+        <mass value="0.12684765920173163"/>
+        <inertia ixx="0.000173" iyy="2.3e-05" izz="0.000174" ixy="-0.0" iyz="-0.0" ixz="-3e-06"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://$(find camAssembly_4H_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://$(find camAssembly_4H_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="camAttachment_1">
+      <inertial>
+        <origin xyz="0.0005995631064798744 -0.04499960098828348 0.013422859845565474" rpy="0 0 0"/>
+        <mass value="0.10484022429645695"/>
+        <inertia ixx="0.000121" iyy="1.5e-05" izz="0.000116" ixy="-0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+        <origin xyz="0.015756 -0.045243 -0.004" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://$(find camAssembly_4H_description)/meshes/camAttachment_1.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="silver"/>
+      </visual>
+      <collision>
+        <origin xyz="0.015756 -0.045243 -0.004" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="file://$(find camAssembly_4H_description)/meshes/camAttachment_1.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="cam_rev_joint" type="revolute">
+      <origin xyz="-0.015756 0.045243 0.004" rpy="0 0 0"/>
+      <parent link="cam_4h_base_link"/>
+      <child link="camAttachment_1"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="0" upper="1.186" effort="1.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="cam_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="cam_4h_base_link"/>
+      <origin xyz="0.0 -0.073 0.945" rpy="0.0 0.0 4.7124"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>
