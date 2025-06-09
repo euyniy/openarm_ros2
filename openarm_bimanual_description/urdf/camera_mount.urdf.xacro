@@ -1,11 +1,6 @@
 <?xml version="1.0" ?>
 <robot name="camAssembly_4H" xmlns:xacro="http://www.ros.org/wiki/xacro">
-
   <xacro:macro name="cam_mount" params="parent">
-
-    <xacro:include filename="$(find camAssembly_4H_description)/urdf/materials.xacro" />
-    <xacro:include filename="$(find camAssembly_4H_description)/urdf/camAssembly_4H.trans" />
-    <xacro:include filename="$(find camAssembly_4H_description)/urdf/camAssembly_4H.gazebo" />
     <link name="cam_4h_base_link">
       <inertial>
         <origin xyz="-0.03651611001557706 -6.529178378444911e-06 0.015438502223371047" rpy="0 0 0"/>
@@ -15,14 +10,14 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="file://$(find camAssembly_4H_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="file://$(find openarm_bimanual_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
-        <material name="silver"/>
+        <material name="gray"/>
       </visual>
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="file://$(find camAssembly_4H_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="file://$(find openarm_bimanual_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
@@ -36,14 +31,14 @@
       <visual>
         <origin xyz="0.015756 -0.045243 -0.004" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="file://$(find camAssembly_4H_description)/meshes/camAttachment_1.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="file://$(find openarm_bimanual_description)/meshes/camAttachment_1.stl" scale="0.001 0.001 0.001"/>
         </geometry>
-        <material name="silver"/>
+        <material name="gray"/>
       </visual>
       <collision>
         <origin xyz="0.015756 -0.045243 -0.004" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="file://$(find camAssembly_4H_description)/meshes/camAttachment_1.stl" scale="0.001 0.001 0.001"/>
+          <mesh filename="file://$(find openarm_bimanual_description)/meshes/camAttachment_1.stl" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
     </link>
