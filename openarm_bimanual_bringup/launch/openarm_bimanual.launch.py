@@ -203,7 +203,8 @@ def generate_launch_description():
                     target_action=(
                         gripper_controller_spawners[i - 1]
                         if i > 0
-                        else robot_controller_spawners[-1]  # Start after last arm controller
+                        # Start after last arm controller
+                        else robot_controller_spawners[-1]
                     ),
                     on_exit=[controller],
                 )
