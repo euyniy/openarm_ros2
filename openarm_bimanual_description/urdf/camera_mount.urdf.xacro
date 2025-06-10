@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="camAssembly_4H" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="cam_mount" params="parent">
+  <xacro:macro name="cam_mount" params="parent cam_angle:=0.785">
+    <!-- cam_angle options: 0.401 (straight), 0.785 (mid), 1.186 (max tilt) -->
     <link name="cam_4h_base_link">
       <inertial>
         <origin xyz="-0.03651611001557706 -6.529178378444911e-06 0.015438502223371047" rpy="0 0 0"/>
@@ -43,12 +44,10 @@
       </collision>
     </link>
 
-    <joint name="cam_rev_joint" type="revolute">
-      <origin xyz="-0.015756 0.045243 0.004" rpy="0 0 0"/>
+    <joint name="cam_fixed_joint" type="fixed">
+      <origin xyz="-0.015756 0.045243 0.004" rpy="0 ${cam_angle} 0"/>
       <parent link="cam_4h_base_link"/>
       <child link="camAttachment_1"/>
-      <axis xyz="0 1 0"/>
-      <limit lower="0" upper="1.186" effort="1.0" velocity="1.0"/>
     </joint>
 
     <joint name="cam_mount_joint" type="fixed">

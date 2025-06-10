@@ -18,7 +18,8 @@
     <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
     <xacro:include filename="$(find openarm_bimanual_description)/urdf/camera_mount.urdf.xacro"/>
     
-    <xacro:cam_mount parent="pedestal_link"/>    
+    <!-- pass tilt angle, presets are 0.000, 0.401, 0.785, 1.186 -->
+    <xacro:cam_mount parent="pedestal_link" cam_angle="0.000"/>  
     <xacro:sensor_d435i parent="camAttachment_1" use_nominal_extrinsics="true">
         <origin xyz="0.015 -0.045 0.0" rpy="0 0 0"/>
     </xacro:sensor_d435i>
