@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
 <robot name="camAssembly_4H" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="cam_mount" params="parent cam_angle:=0.785">
-    <!-- cam_angle options: 0.401 (straight), 0.785 (mid), 1.186 (max tilt) -->
+  <xacro:macro name="cam_mount" params="parent:='' cam_angle:=''">
     <link name="cam_4h_base_link">
       <inertial>
         <origin xyz="-0.03651611001557706 -6.529178378444911e-06 0.015438502223371047" rpy="0 0 0"/>
