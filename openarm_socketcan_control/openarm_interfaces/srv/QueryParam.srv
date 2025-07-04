@@ -1,0 +1,6 @@
+# Request
+int32 motor_id
+int32 rid
+---
+# Response
+float64 value

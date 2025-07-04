@@ -1,0 +1,36 @@
+# OpenArm ROS2 Node Configuration
+# This file contains default parameters for the OpenArm control node
+
+openarm_socketcan_ros2_node:
+  ros__parameters:
+    # CAN Bus Configuration
+    name: "left_arm"
+    can_interface: "can0"           # CAN interface name
+    enable_canfd: true              # Enable CAN-FD support
+
+    # Arm Motor Configuration
+    arm_motor_types: ["DM4310", "DM4310"]  # Motor types for arm joints
+    arm_send_ids: [0x01, 0x02]             # CAN IDs for sending commands
+    arm_recv_ids: [0x11, 0x12]             # CAN IDs for receiving feedback
+
+    # Gripper Configuration
+    enable_gripper: true            # Enable gripper control
+    gripper_motor_type: "DM4310"    # Gripper motor type
+    gripper_send_id: 0x07           # Gripper command CAN ID
+    gripper_recv_id: 0x17           # Gripper feedback CAN ID
+
+    # Control Parameters
+    joint_state_frequency: 50.0     # Joint state publishing rate [Hz]
+
+    # MIT Control Default Parameters
+    default_kp: 2.0               # Default proportional gain
+    default_kd: 1.0                # Default derivative gain
+
+    # Safety Limits
+    max_position_error: 1.57       # Maximum position error [rad]
+    max_velocity: 10.0             # Maximum velocity [rad/s]
+    max_torque: 5.0                # Maximum torque [Nm]
+
+    # Timeouts
+    command_timeout: 0.1           # Command timeout [s]
+    motor_enable_timeout: 2.0      # Motor enable timeout [s]

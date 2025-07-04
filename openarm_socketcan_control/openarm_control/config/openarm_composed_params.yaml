@@ -1,0 +1,28 @@
+# OpenArm Composed Node Configuration
+# Clean component-based design with per-joint control parameters
+
+openarm_node:
+  ros__parameters:
+    # Core configuration
+    arm_namespace: "left_arm"
+    can_interface: "can0"
+    enable_canfd: true
+
+    # Motor configuration
+    arm_motor_types: ["DM4310", "DM4310"]
+    arm_send_ids: [0x01, 0x02]
+    arm_recv_ids: [0x11, 0x12]
+    arm_joint_names: ["arm_joint_1", "arm_joint_2"]
+
+    # Gripper configuration
+    enable_gripper: true
+    gripper_motor_type: "DM4310"
+    gripper_send_id: 0x07
+    gripper_recv_id: 0x17
+    gripper_joint_name: "gripper_joint"
+
+    # Per-joint control defaults - different kp/kd for each joint
+    arm_default_kp: [2.0, 3.0]  # Joint-specific stiffness
+    arm_default_kd: [1.0, 1.5]  # Joint-specific damping
+    gripper_default_kp: 50.0
+    gripper_default_kd: 1.0
