@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: openarm_description
+    relative_path: urdf/robot/v10_robot.urdf
+  srdf:
+    relative_path: config/openarm.srdf
+  package_settings:
+    author_name: magdeline kuan
+    author_email: magdeline_kuan@reazon.jp
+    generated_timestamp: 1751962210
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
