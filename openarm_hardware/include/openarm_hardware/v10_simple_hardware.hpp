@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <memory>
 #include <openarm/can/socket/openarm.hpp>
 #include <openarm/damiao_motor/dm_motor_constants.hpp>
@@ -104,6 +105,13 @@ class OpenArm_v10HW : public hardware_interface::SystemInterface {
                                           5.0,  5.0,  5.0,  0.5};
   const std::vector<double> DEFAULT_KD = {2.75, 2.5, 0.7, 0.4,
                                           0.7,  0.6, 0.5, 0.1};
+
+  const double GRIPPER_JOINT_0_POSITION = 0.044;
+  const double GRIPPER_JOINT_1_POSITION = 0.0;
+  const double GRIPPER_MOTOR_0_RADIANS = 0.0;
+  const double GRIPPER_MOTOR_1_RADIANS = -1.0472;
+  const double GRIPPER_DEFAULT_KP = 5.0;
+  const double GRIPPER_DEFAULT_KD = 0.1;
 
   // Configuration
   std::string can_interface_;

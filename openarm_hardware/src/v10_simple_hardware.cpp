@@ -64,14 +64,14 @@ bool OpenArm_v10HW::parse_config(const hardware_interface::HardwareInfo& info) {
               "Configuration: CAN=%s, arm_prefix=%s, hand=%s, can_fd=%s",
               can_interface_.c_str(), arm_prefix_.c_str(),
               hand_ ? "enabled" : "disabled", can_fd_ ? "enabled" : "disabled");
-
   return true;
 }
 
 void OpenArm_v10HW::generate_joint_names() {
   joint_names_.clear();
-  // TODO: read from urdf properly in the future
-  // Generate arm joint names: openarm_{arm_prefix}joint{N}
+  // TODO: read from urdf properly and sort in the future.
+  // Currently, the joint names are hardcoded for order consistency to align
+  // with hardware. Generate arm joint names: openarm_{arm_prefix}joint{N}
   for (size_t i = 1; i <= ARM_DOF; ++i) {
     std::string joint_name =
         "openarm_" + arm_prefix_ + "joint" + std::to_string(i);
@@ -154,7 +154,6 @@ hardware_interface::CallbackReturn OpenArm_v10HW::on_init(
 hardware_interface::CallbackReturn OpenArm_v10HW::on_configure(
     const rclcpp_lifecycle::State& /*previous_state*/) {
   // Set callback mode to ignore during configuration
-  openarm_->set_callback_mode_all(openarm::damiao_motor::CallbackMode::IGNORE);
   openarm_->refresh_all();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   openarm_->recv_all();
@@ -165,7 +164,6 @@ hardware_interface::CallbackReturn OpenArm_v10HW::on_configure(
 std::vector<hardware_interface::StateInterface>
 OpenArm_v10HW::export_state_interfaces() {
   std::vector<hardware_interface::StateInterface> state_interfaces;
-
   for (size_t i = 0; i < joint_names_.size(); ++i) {
     state_interfaces.emplace_back(hardware_interface::StateInterface(
         joint_names_[i], hardware_interface::HW_IF_POSITION, &pos_states_[i]));
@@ -181,7 +179,7 @@ OpenArm_v10HW::export_state_interfaces() {
 std::vector<hardware_interface::CommandInterface>
 OpenArm_v10HW::export_command_interfaces() {
   std::vector<hardware_interface::CommandInterface> command_interfaces;
-
+  // TODO: consider exposing only needed interfaces to avoid undefined behavior.
   for (size_t i = 0; i < joint_names_.size(); ++i) {
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
         joint_names_[i], hardware_interface::HW_IF_POSITION,
@@ -199,14 +197,12 @@ OpenArm_v10HW::export_command_interfaces() {
 hardware_interface::CallbackReturn OpenArm_v10HW::on_activate(
     const rclcpp_lifecycle::State& /*previous_state*/) {
   RCLCPP_INFO(rclcpp::get_logger("OpenArm_v10HW"), "Activating OpenArm V10...");
-
-  // Set callback mode to state and enable all motors (like full_arm.cpp)
   openarm_->set_callback_mode_all(openarm::damiao_motor::CallbackMode::STATE);
   openarm_->enable_all();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   openarm_->recv_all();
 
-  // Return to zero position smoothly
+  // Return to zero position
   return_to_zero();
 
   RCLCPP_INFO(rclcpp::get_logger("OpenArm_v10HW"), "OpenArm V10 activated");
@@ -220,6 +216,7 @@ hardware_interface::CallbackReturn OpenArm_v10HW::on_deactivate(
 
   // Disable all motors (like full_arm.cpp exit)
   openarm_->disable_all();
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
   openarm_->recv_all();
 
   RCLCPP_INFO(rclcpp::get_logger("OpenArm_v10HW"), "OpenArm V10 deactivated");
@@ -229,7 +226,6 @@ hardware_interface::CallbackReturn OpenArm_v10HW::on_deactivate(
 hardware_interface::return_type OpenArm_v10HW::read(
     const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
   // Receive all motor states
-  openarm_->set_callback_mode_all(openarm::damiao_motor::CallbackMode::STATE);
   openarm_->refresh_all();
   openarm_->recv_all();
 
@@ -245,13 +241,12 @@ hardware_interface::return_type OpenArm_v10HW::read(
   if (hand_ && joint_names_.size() > ARM_DOF) {
     const auto& gripper_motors = openarm_->get_gripper().get_motors();
     if (!gripper_motors.empty()) {
-      // TODO the mappings are unimplemented, need to actually implement the
-      // mappings for pos, vel, tau Convert motor position (radians) to joint
-      // value (0-1)
+      // TODO the mappings are approximates
+      // Convert motor position (radians) to joint value (0-0.044m)
       double motor_pos = gripper_motors[0].get_position();
       pos_states_[ARM_DOF] = motor_radians_to_joint(motor_pos);
 
-      // Velocity and torque can be passed through directly for now
+      // Unimplemented: Velocity and torque mapping
       vel_states_[ARM_DOF] = 0;  // gripper_motors[0].get_velocity();
       tau_states_[ARM_DOF] = 0;  // gripper_motors[0].get_torque();
     }
@@ -271,13 +266,12 @@ hardware_interface::return_type OpenArm_v10HW::write(
   openarm_->get_arm().mit_control_all(arm_params);
   // Control gripper if enabled
   if (hand_ && joint_names_.size() > ARM_DOF) {
-    // TODO the mappings are unimplemented.
-    // Convert joint value (0-1) to motor position (radians)
+    // TODO the true mappings are unimplemented.
     double motor_command = joint_to_motor_radians(pos_commands_[ARM_DOF]);
-    openarm_->get_gripper().mit_control_all({{5.0, 1.0, motor_command, 0, 0}});
+    openarm_->get_gripper().mit_control_all(
+        {{GRIPPER_DEFAULT_KP, GRIPPER_DEFAULT_KD, motor_command, 0, 0}});
   }
-  std::this_thread::sleep_for(std::chrono::microseconds(300));
-  openarm_->recv_all();
+  openarm_->recv_all(1000);
   return hardware_interface::return_type::OK;
 }
 
@@ -294,23 +288,26 @@ void OpenArm_v10HW::return_to_zero() {
 
   // Return gripper to zero if enabled
   if (hand_) {
-    openarm_->get_gripper().mit_control_all({{5.0, 1.0, 0.0, 0.0, 0.0}});
+    openarm_->get_gripper().mit_control_all(
+        {{GRIPPER_DEFAULT_KP, GRIPPER_DEFAULT_KD, GRIPPER_JOINT_0_POSITION, 0.0,
+          0.0}});
   }
-
-  // // Wait for motors to settle
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
   openarm_->recv_all();
 }
 
 // Gripper mapping helper functions
 double OpenArm_v10HW::joint_to_motor_radians(double joint_value) {
-  // Joint 0=closed -> motor 0 rad, Joint 1=open -> motor -1.0472 rad
-  return joint_value * (-1.0472);  // Scale from 0-1 to 0 to -1.0472
+  // Joint 0=closed -> motor 0 rad, Joint 0.044=open -> motor -1.0472 rad
+  return (joint_value / GRIPPER_JOINT_0_POSITION) *
+         GRIPPER_MOTOR_1_RADIANS;  // Scale from 0-0.044 to 0 to -1.0472
 }
 
 double OpenArm_v10HW::motor_radians_to_joint(double motor_radians) {
-  // Motor 0 rad=closed -> joint 0, Motor -1.0472 rad=open -> joint 1
-  return motor_radians / (-1.0472);  // Scale from 0 to -1.0472 to 0-1
+  // Motor 0 rad=closed -> joint 0, Motor -1.0472 rad=open -> joint 0.044
+  return GRIPPER_JOINT_0_POSITION *
+         (motor_radians /
+          GRIPPER_MOTOR_1_RADIANS);  // Scale from 0 to -1.0472 to 0-0.044
 }
 
 }  // namespace openarm_hardware
